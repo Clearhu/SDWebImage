@@ -191,6 +191,33 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
+// copy a path with image file to cache
+- (void)copyImageWithPath:(NSString *)path forKey:(NSString *)key completed:(void (^)(BOOL isCopied))completedBlock;
+{
+    if (!path) {
+        if (completedBlock) {
+            completedBlock(NO);
+        }
+        return;
+    }
+    
+    dispatch_async(self.ioQueue, ^
+                   {
+                       // Can't use defaultManager another thread
+                       NSFileManager *fileManager = NSFileManager.new;
+                       
+                       if (![fileManager fileExistsAtPath:_diskCachePath])
+                       {
+                           [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+                       }
+                       
+                       BOOL isSucceed = [fileManager copyItemAtPath:path toPath:[self defaultCachePathForKey:key] error:nil];
+                       if (completedBlock) {
+                           completedBlock(isSucceed);
+                       }
+                   });
+}
+
 - (BOOL)diskImageExistsWithKey:(NSString *)key
 {
     __block BOOL exists = NO;
