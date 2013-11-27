@@ -99,6 +99,16 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
+ * Copy a path with image file to disk cache at the given key.
+ *
+ * @param path The image file path to store
+ * @param key The unique image cache key, usually it's image absolute URL
+ * @param completedBlock Asnyc callback block, you neen user performSelectorOnMainThread:withObject:waitUntilDone:
+ *                       return the main tread to other work, else you will wait long time to back result.
+ */
+- (void)copyImageWithPath:(NSString *)path forKey:(NSString *)key completed:(void (^)(BOOL isCopied))completedBlock;
+
+/**
  * Query the disk cache asynchronously.
  *
  * @param key The unique key used to store the wanted image
